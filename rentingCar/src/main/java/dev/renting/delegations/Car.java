@@ -98,18 +98,5 @@ public class Car {
     public void setAviableCar(Car aviableCar) {
         this.aviableCar = aviableCar;
     }
-/*
-    public String get(String operation) {
-      return operation;
-    }
 
-        @DynamoDbAttribute("calendar")
-        public LocalDateTime getCalendar () {
-            return calendar;
-        }
-        public void setCalendar (LocalDateTime calendar){
-            this.calendar = calendar;
-        }
-
-*/
 }

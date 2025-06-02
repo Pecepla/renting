@@ -12,7 +12,7 @@ public interface CarRentalRepository {
 
  List<String> getUniqueDelegations();
 
-List <Car> getCarsByDelegation(String delegationId);
+List<Delegation> getCarsByDelegation(String delegationId);
 
  List<Booking> getBookingsByDelegationAndDates(String delegationId, LocalDate start, LocalDate end);
 

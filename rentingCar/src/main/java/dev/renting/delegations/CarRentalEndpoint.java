@@ -65,7 +65,7 @@ public class CarRentalEndpoint {
     public Booking createBooking(String userId, String carOperation, LocalDate start, LocalDate end, String delegationId) {
         Booking booking = new Booking();
         booking.setUserId(userId);
-        booking.setCar(carOperation);
+        booking.setCar();
         booking.setStartDate(String.valueOf(start));
         booking.setEndDate(String.valueOf(end));
         booking.setDelegationId(delegationId);

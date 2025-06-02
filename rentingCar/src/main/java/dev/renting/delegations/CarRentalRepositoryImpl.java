@@ -30,7 +30,7 @@ public abstract class CarRentalRepositoryImpl implements CarRentalRepository {
         this.delegationTable = enhancedClient.table("Delegation", TableSchema.fromBean(Delegation.class));
     }
 
-    @Override
+
     public List<Car> getAvailableCars() {
         return carTable.scan().items().stream().collect(Collectors.toList());
     }
@@ -45,7 +45,7 @@ public abstract class CarRentalRepositoryImpl implements CarRentalRepository {
     }
 
     @Override
-    public Object getCarsByDelegation(String delegationId) {
+    public List<Delegation> getCarsByDelegation(String delegationId) {
         return carTable.query(QueryConditional.keyEqualTo(Key.builder().partitionValue(delegationId).build()))
                 .items()
                 .stream()

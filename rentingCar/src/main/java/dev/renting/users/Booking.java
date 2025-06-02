@@ -37,7 +37,7 @@ public class Booking {
     @DynamoDbAttribute("car")
     public Car getCar() { return car; }
 
-    public void setCar(String car) { this.car = car; }
+    public void setCar() { this.car = car; }
 
     @DynamoDbAttribute("status")
     public String getStatus() { return status; }
