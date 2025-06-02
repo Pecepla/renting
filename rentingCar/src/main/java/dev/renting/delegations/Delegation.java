@@ -15,6 +15,8 @@ public class Delegation {
     private int availableCarQty;
     private String phone;
     private String email;
+    private String make;
+    private String model;
 
     @DynamoDbPartitionKey
     public String getDelegationId() {
@@ -87,4 +89,22 @@ public class Delegation {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @DynamoDbAttribute("make")
+    public String getMake() {
+        return make;
+    }
+
+    public void setMake(String make) {
+        this.make = make;
+    }
+    @DynamoDbAttribute("model")
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
 }

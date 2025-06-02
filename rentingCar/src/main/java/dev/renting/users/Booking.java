@@ -22,6 +22,7 @@ public class Booking {
     private String statusBooking;
     private Delegation pickUpDelegation;
     private Delegation deliverDelegation;
+    private String delegationId;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute("userId")
@@ -35,7 +36,8 @@ public class Booking {
 
     @DynamoDbAttribute("car")
     public Car getCar() { return car; }
-    public void setCar(Car car) { this.car = car; }
+
+    public void setCar(String car) { this.car = car; }
 
     @DynamoDbAttribute("status")
     public String getStatus() { return status; }
@@ -43,7 +45,9 @@ public class Booking {
 
     @DynamoDbAttribute("startDate")
     public String getStartDate() { return startDate; }
+
     public void setStartDate(String startDate) { this.startDate = startDate; }
+
 
     @DynamoDbAttribute("endDate")
     public String getEndDate() { return endDate; }
@@ -68,4 +72,13 @@ public class Booking {
     @DynamoDbAttribute("deliverDelegation")
     public Delegation getDeliverDelegation() { return deliverDelegation; }
     public void setDeliverDelegation(Delegation deliverDelegation) { this.deliverDelegation = deliverDelegation; }
+
+    @DynamoDbAttribute("delegationId")
+    public String getDelegationId() {
+        return delegationId;
+    }
+    public void setDelegationId(String delegationId) {
+        this.delegationId = delegationId;
+    }
+
 }

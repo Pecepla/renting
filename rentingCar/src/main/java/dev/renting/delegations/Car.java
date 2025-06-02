@@ -99,6 +99,10 @@ public class Car {
         this.aviableCar = aviableCar;
     }
 /*
+    public String get(String operation) {
+      return operation;
+    }
+
         @DynamoDbAttribute("calendar")
         public LocalDateTime getCalendar () {
             return calendar;

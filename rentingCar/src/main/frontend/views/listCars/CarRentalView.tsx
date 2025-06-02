@@ -1,4 +1,4 @@
-}import { DatePicker } from '@vaadin/react-components/DatePicker';
+import { DatePicker } from '@vaadin/react-components/DatePicker';
  import { useEffect, useState } from 'react';
  import { CarRentalEndpoint } from 'Frontend/generated/endpoints';
 
@@ -9,7 +9,7 @@
    const [availableCars, setAvailableCars] = useState<Car[]>([]);
 
    useEffect(() => {
-     if (delegation && startDate && endDate) {
+    if (delegation && startDate && endDate) {
        CarRentalEndpoint.getAvailableCars(delegation, startDate, endDate)
          .then(cars => setAvailableCars(cars));
      }
