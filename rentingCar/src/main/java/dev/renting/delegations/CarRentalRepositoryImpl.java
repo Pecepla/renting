@@ -30,8 +30,8 @@ public abstract class CarRentalRepositoryImpl implements CarRentalRepository {
         this.delegationTable = enhancedClient.table("Delegation", TableSchema.fromBean(Delegation.class));
     }
 
-
-    public List<Car> getAvailableCars() {
+     @Override
+     public List<Car> getAvailableCars() {
         return carTable.scan().items().stream().collect(Collectors.toList());
     }
 

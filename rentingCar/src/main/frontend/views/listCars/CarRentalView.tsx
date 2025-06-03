@@ -1,67 +1,124 @@
 import { DatePicker } from '@vaadin/react-components/DatePicker';
- import { useEffect, useState } from 'react';
- import { CarRentalEndpoint } from 'Frontend/generated/endpoints';
+import { ComboBox } from '@vaadin/react-components/ComboBox';
+import { Grid, GridColumn } from '@vaadin/react-components/Grid';
+import { Button } from '@vaadin/react-components/Button';
+import { Notification } from '@vaadin/react-components/Notification';
+import { useEffect, useState } from 'react';
+import { CarRentalEndpoint } from 'Frontend/generated/endpoints';
+import type { LocalDate } from '@vaadin/date-picker';
 
- export default function CarCalendar() {
-   const [delegation, setDelegation] = useState<string>('');
-   const [startDate, setStartDate] = useState<LocalDate>();
-   const [endDate, setEndDate] = useState<LocalDate>();
-   const [availableCars, setAvailableCars] = useState<Car[]>([]);
+interface Car {
+  operation: string;
+  make: string;
+  model: string;
+}
 
-   useEffect(() => {
+export default function CarRentalView() {
+  const [delegation, setDelegation] = useState<string>('');
+  const [startDate, setStartDate] = useState<LocalDate | undefined>();
+  const [endDate, setEndDate] = useState<LocalDate | undefined>();
+  const [availableCars, setAvailableCars] = useState<Car[]>([]);
+  const [delegations, setDelegations] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch unique delegations on mount
+  useEffect(() => {
+    CarRentalEndpoint.getUniqueDelegations()
+      .then(setDelegations)
+      .catch((err) => setError(`Failed to load delegations: ${err.message}`));
+  }, []);
+
+  // Fetch available cars when delegation or dates change
+  useEffect(() => {
     if (delegation && startDate && endDate) {
-       CarRentalEndpoint.getAvailableCars(delegation, startDate, endDate)
-         .then(cars => setAvailableCars(cars));
-     }
-   }, [delegation, startDate, endDate]);
+      if (new Date(endDate) < new Date(startDate)) {
+        setError('End date cannot be before start date');
+        setAvailableCars([]);
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      CarRentalEndpoint.getAvailableCars(delegation, startDate, endDate)
+        .then((cars) => {
+          setAvailableCars(cars);
+          if (cars.length === 0) {
+            Notification.show('No cars available for the selected criteria', {
+              theme: 'warning',
+            });
+          }
+        })
+        .catch((err) => setError(`Failed to load cars: ${err.message}`))
+        .finally(() => setLoading(false));
+    } else {
+      setAvailableCars([]);
+    }
+  }, [delegation, startDate, endDate]);
 
-   return (
-     <div className="p-m">
-       <ComboBox
-         label="Delegación"
-         items={['DELEG#001', 'DELEG#002']}
-         onValueChanged={e => setDelegation(e.detail.value)}
-       />
+  async function handleBooking(carOperation: string) {
+    if (!startDate || !endDate || !delegation) {
+      Notification.show('Please select delegation and dates', { theme: 'error' });
+      return;
+    }
+    try {
+      setLoading(true);
+      await CarRentalEndpoint.createBooking('currentUser', carOperation, startDate, endDate, delegation);
+      Notification.show('Booking confirmed!', { theme: 'success' });
+      // Refresh available cars
+      const cars = await CarRentalEndpoint.getAvailableCars(delegation, startDate, endDate);
+      setAvailableCars(cars);
+    } catch (e: any) {
+      Notification.show(`Booking failed: ${e.message}`, { theme: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  }
 
-       <DatePicker
-         label="Fecha inicio"
-         onValueChanged={e => setStartDate(e.detail.value)}
-       />
-
-       <DatePicker
-         label="Fecha fin"
-         min={startDate}
-         onValueChanged={e => setEndDate(e.detail.value)}
-       />
-
-       <Grid items={availableCars}>
-         <GridColumn path="make" header="Marca" />
-         <GridColumn path="model" header="Modelo" />
-         <GridColumn>
-           {({ item }) => (
-             <Button
-               onClick={() => handleBooking(item.operation)}
-               disabled={!startDate || !endDate}
-             >
-               Reservar
-             </Button>
-           )}
-         </GridColumn>
-       </Grid>
-     </div>
-   );
-
-   async function handleBooking(carOperation: string) {
-     try {
-       await CarRentalEndpoint.createBooking(
-         'currentUser',
-         carOperation,
-         startDate!,
-         endDate!
-       );
-       Notification.show('¡Reserva confirmada!');
-     } catch (e) {
-       Notification.show(`Error: ${e.message}`);
-     }
-   }
- }
+  return (
+    <div className="p-m flex flex-col gap-m">
+      <h2>Car Rental</h2>
+      {error && <div className="text-error">{error}</div>}
+      <ComboBox
+        label="Delegation"
+        items={delegations}
+        value={delegation}
+        onValueChanged={(e) => setDelegation(e.detail.value)}
+        disabled={loading}
+      />
+      <div className="flex gap-s">
+        <DatePicker
+          label="Start Date"
+          value={startDate}
+          onValueChanged={(e) => setStartDate(e.detail.value)}
+          disabled={loading}
+        />
+        <DatePicker
+          label="End Date"
+          value={endDate}
+          min={startDate}
+          onValueChanged={(e) => setEndDate(e.detail.value)}
+          disabled={loading}
+        />
+      </div>
+      {loading ? (
+        <div>Loading cars...</div>
+      ) : (
+        <Grid items={availableCars}>
+          <GridColumn path="make" header="Make" />
+          <GridColumn path="model" header="Model" />
+          <GridColumn header="Action">
+            {({ item }: { item: Car }) => (
+              <Button
+                onClick={() => handleBooking(item.operation)}
+                disabled={loading || !startDate || !endDate}
+                theme="primary"
+              >
+                Book
+              </Button>
+            )}
+          </GridColumn>
+        </Grid>
+      )}
+    </div>
+  );
+}

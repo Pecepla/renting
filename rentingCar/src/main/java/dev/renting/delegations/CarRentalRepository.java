@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CarRentalRepository {
 
- List<Car> getAvailableCars(String delegationId, LocalDate start, LocalDate end);
+ List<Car> getAvailableCars();
 
  List<String> getUniqueDelegations();
 
@@ -19,4 +19,5 @@ List<Delegation> getCarsByDelegation(String delegationId);
  void markCarAsRented(String carOperation);
 
  Booking createBooking(Booking booking);
+
 }
